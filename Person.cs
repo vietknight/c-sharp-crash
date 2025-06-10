@@ -19,8 +19,8 @@ namespace c_sharp_crash
         // Properties (accessors for private fields)
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get { return name; } // get triggers when you read a property
+            set { name = value; } // set triggers when you write to a property
         }
 
         public int Age

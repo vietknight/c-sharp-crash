@@ -382,7 +382,7 @@ class Program
     /**
      * METHOD OVERLOADING
      */
-    // We can also overload methods. Method overrloading occurs when you define multiple methods of the same name with
+    // We can also overload methods. Method overloading occurs when you define multiple methods of the same name with
     // different return types and/or parameter data types.
 
     // Method for adding two doubles
@@ -432,7 +432,7 @@ class Program
         try
         {
             // Let's intentionally throw an exception by grabbing the 4th item in the list (which doesn't exist)
-            // Shouuld throw an "index out of range" exception
+            // Should throw an "index out of range" exception
             Console.WriteLine(shapes[3]);
         } catch (Exception ex)
         {
