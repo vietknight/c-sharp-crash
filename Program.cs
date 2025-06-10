@@ -431,7 +431,7 @@ class Program
 
         try
         {
-            // Let's intntionally throw an exception by grabbing the 4th item in the list (which doesn't exist)
+            // Let's intentionally throw an exception by grabbing the 4th item in the list (which doesn't exist)
             // Shouuld throw an "index out of range" exception
             Console.WriteLine(shapes[3]);
         } catch (Exception ex)
