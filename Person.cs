@@ -25,8 +25,8 @@ namespace c_sharp_crash
 
         public int Age
         {
-            get { return age; }
-            set { age = value; }
+            get { return age; } //get triggers when you read a property
+            set { age = value; } // set triggers when you write a property
         }
 
         // ALTERNATIVE: If you don't want to initialize the fields via constructor arguments, you can also

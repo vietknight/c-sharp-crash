@@ -1,0 +1,194 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Text.Json;
+
+public class Task
+{
+    public int Id { get; set; }
+    public string Description { get; set; }
+    public DateTime DueDate { get; set; }
+
+    public Task(int id, string description, DateTime dueDate)
+    {
+        this.Id = id;
+        this.Description = description;
+        this.DueDate = dueDate;
+    }
+
+    public override string ToString()
+    {
+        return $"ID: {this.Id}, Description: {this.Description}, Due: {this.DueDate.ToShortDateString()}";
+    }
+}
+
+public class TaskManager
+{
+    private List<Task> tasks = new List<Task>();
+    private int nextId = 1;
+
+    public void AddTask(string description, DateTime dueDate)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Description cannot be empty.");
+        if (dueDate < DateTime.Today)
+            throw new ArgumentException("Due date cannot be in the past.");
+        tasks.Add(new Task(nextId++, description, dueDate));
+        Console.WriteLine("Task added successfully.");
+    }
+
+    public void ListTasks()
+    {
+        if (tasks.Count == 0)
+        {
+            Console.WriteLine("No tasks available.");
+            return;
+        }
+        var orderedTasks = tasks.OrderBy(t => t.DueDate).ToList();
+        foreach (Task task in orderedTasks)
+        {
+            Console.WriteLine(task);
+        }
+    }
+
+    public void RemoveTask(int id)
+    {
+        Task task = tasks.FirstOrDefault(t => t.Id == id);
+        if (task != null)
+        {
+            tasks.Remove(task);
+            Console.WriteLine("Task removed successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Task not found.");
+        }
+    }
+
+    public void ListTasksDueThisWeek()
+    {
+        DateTime today = DateTime.Today;
+        DateTime endOfWeek = today.AddDays(7);
+        var dueTasks = tasks.Where(t => t.DueDate >= today && t.DueDate <= endOfWeek)
+                           .OrderBy(t => t.DueDate)
+                           .ToList();
+        if (dueTasks.Count == 0)
+        {
+            Console.WriteLine("No tasks due this week.");
+            return;
+        }
+        foreach (Task task in dueTasks)
+        {
+            Console.WriteLine(task);
+        }
+    }
+
+    public void SaveToFile(string filePath)
+    {
+        try
+        {
+            string json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
+            Console.WriteLine("Tasks saved to file.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving tasks: {ex.Message}");
+        }
+    }
+
+    public void LoadFromFile(string filePath)
+    {
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath);
+                tasks = JsonSerializer.Deserialize<List<Task>>(json);
+                nextId = tasks.Any() ? tasks.Max(t => t.Id) + 1 : 1;
+                Console.WriteLine("Tasks loaded from file.");
+            }
+            else
+            {
+                Console.WriteLine("No file found. Starting with empty task list.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        TaskManager manager = new TaskManager();
+        string filePath = "tasks.json";
+        manager.LoadFromFile(filePath); // Load tasks at startup
+
+        while (true)
+        {
+            Console.WriteLine("\nTask Manager");
+            Console.WriteLine("1. Add Task");
+            Console.WriteLine("2. List All Tasks");
+            Console.WriteLine("3. Remove Task");
+            Console.WriteLine("4. List Tasks Due This Week");
+            Console.WriteLine("5. Save Tasks");
+            Console.WriteLine("6. Load Tasks");
+            Console.WriteLine("7. Exit");
+            Console.Write("Choose an option: ");
+
+            string choice = Console.ReadLine();
+            try
+            {
+                switch (choice)
+                {
+                    case "1":
+                        Console.Write("Enter description: ");
+                        string desc = Console.ReadLine();
+                        Console.Write("Enter due date (MM/dd/yyyy): ");
+                        DateTime due = DateTime.Parse(Console.ReadLine());
+                        manager.AddTask(desc, due);
+                        break;
+                    case "2":
+                        manager.ListTasks();
+                        break;
+                    case "3":
+                        Console.Write("Enter task ID: ");
+                        int id = int.Parse(Console.ReadLine());
+                        manager.RemoveTask(id);
+                        break;
+                    case "4":
+                        manager.ListTasksDueThisWeek();
+                        break;
+                    case "5":
+                        manager.SaveToFile(filePath);
+                        break;
+                    case "6":
+                        manager.LoadFromFile(filePath);
+                        break;
+                    case "7":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid input format. Try again.");
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+        }
+    }
+}
