@@ -10,6 +10,10 @@ public class Task
     public string Description { get; set; }
     public DateTime DueDate { get; set; }
 
+    // this function adds properties to the task object, whihc can be called later
+    // example is Task.id
+    // task.description
+    // task.duedate
     public Task(int id, string description, DateTime dueDate)
     {
         this.Id = id;
